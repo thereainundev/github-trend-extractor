@@ -1,44 +1,7 @@
 {
   "actorSpecification": 1,
-  "name": "gittrend-scout-pro",
+  "name": "my-first-actor",
   "title": "GitTrend Scout Pro: Deep Repository Intelligence",
   "version": "0.0",
-  "input": ".actor/input_schema.json",
-  "output": {
-    "actorOutputSchemaVersion": 1,
-    "title": "GitTrend Scout Pro Output",
-    "properties": {
-      "results": {
-        "type": "string",
-        "title": "Results",
-        "template": "{{links.apiDefaultDatasetUrl}}/items"
-      }
-    }
-  },
-  "storages": {
-    "dataset": {
-      "actorSpecification": 1,
-      "fields": {
-        "type": "object",
-        "properties": {
-          "name": { "type": "string", "title": "Repository Name" },
-          "language": { "type": "string", "title": "Language" },
-          "stars": { "type": "number", "title": "Stars" },
-          "forks": { "type": "number", "title": "Forks" },
-          "url": { "type": "string", "title": "URL" }
-        }
-      },
-      "views": {
-        "overview": {
-          "title": "Overview",
-          "transformation": {
-            "fields": ["name", "language", "stars", "forks", "url"]
-          },
-          "display": {
-            "component": "table"
-          }
-        }
-      }
-    }
-  }
+  "output": ".actor/output_schema.json"
 }
