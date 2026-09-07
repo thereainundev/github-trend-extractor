@@ -1,6 +1,6 @@
 {
   "actorOutputSchemaVersion": 1,
-  "title": "Output schema of GitTrend Scout Pro",
+  "title": "GitTrend Scout Pro Output",
   "properties": {
     "results": {
       "type": "string",
