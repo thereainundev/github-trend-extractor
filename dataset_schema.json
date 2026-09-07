@@ -1,0 +1,24 @@
+{
+  "actorSpecification": 1,
+  "fields": {
+    "type": "object",
+    "properties": {
+      "name": { "type": "string", "title": "Repository Name" },
+      "language": { "type": "string", "title": "Language" },
+      "stars": { "type": "number", "title": "Stars" },
+      "forks": { "type": "number", "title": "Forks" },
+      "url": { "type": "string", "title": "URL" }
+    }
+  },
+  "views": {
+    "overview": {
+      "title": "Overview",
+      "transformation": {
+        "fields": ["name", "language", "stars", "forks", "url"]
+      },
+      "display": {
+        "component": "table"
+      }
+    }
+  }
+}
