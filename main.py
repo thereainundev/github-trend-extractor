@@ -1,54 +1,47 @@
 import asyncio
-import json
-import os
+from apify import Actor
 import httpx
 
-try:
-    from apify import Actor
-    HAS_APIFY = True
-except ImportError:
-    HAS_APIFY = False
-
 async def main():
-    keyword = os.getenv("KEYWORD", "artificial-intelligence")
-    print(f"Mengambil data tren real-time dari GitHub untuk topik: {keyword}...")
-    
-    url = f"https://api.github.com/search/repositories?q={keyword}&sort=stars&order=desc"
-    headers = {
-        "User-Agent": "TermuxApifyActor/1.0",
-        "Accept": "application/vnd.github.v3+json"
-    }
+    async with Actor:
+        # 1. Tangkap input dari UI Dashboard Apify pembeli
+        actor_input = await Actor.get_input() or {}
+        topic = actor_input.get('topic', 'artificial-intelligence')
+        max_items = actor_input.get('maxItems', 15)
 
-    async with httpx.AsyncClient(timeout=10.0) as client:
-        response = await client.get(url, headers=headers)
+        Actor.log.info(f"🚀 Menganalisis top {max_items} repositori untuk niche: '{topic}'...")
+
+        # 2. Menggunakan GitHub Search API untuk data premium
+        url = f"https://api.github.com/search/repositories?q=topic:{topic}&sort=stars&order=desc&per_page={max_items}"
+        headers = {"Accept": "application/vnd.github.v3+json"}
         
-        if response.status_code != 200:
-            print(f"Error {response.status_code}: Gagal mengambil data.")
+        async with httpx.AsyncClient() as client:
+            response = await client.get(url, headers=headers)
+            data = response.json()
+
+        if "items" not in data:
+            Actor.log.error("Gagal menarik data. Limit API atau koneksi bermasalah.")
             return
 
-        data = response.json()
+        # 3. Proses Ekstraksi & Pengayaan Data (Data Enrichment)
+        insight_dataset = []
+        for repo in data["items"]:
+            # Kalkulasi sederhana untuk status aktivitas project
+            status_aktif = "Sangat Aktif" if repo.get("open_issues_count", 0) > 50 else "Normal"
 
-    results = []
-    items = data.get("items", [])[:5]
+            insight_dataset.append({
+                "Repository Name": repo.get("full_name"),
+                "Primary Language": repo.get("language", "N/A"),
+                "Stars": repo.get("stargazers_count"),
+                "Forks (Adoption Rate)": repo.get("forks_count"),
+                "Open Issues (Health)": repo.get("open_issues_count"),
+                "Project Status": status_aktif,
+                "Tags / Topics": ", ".join(repo.get("topics", [])[:5]), 
+                "Last Updated": repo.get("pushed_at"),
+                "URL": repo.get("html_url"),
+                "Description": repo.get("description")
+            })
 
-    for item in items:
-        results.append({
-            "title": item.get("name"),
-            "url": item.get("html_url"),
-            "stars": item.get("stargazers_count"),
-            "description": item.get("description"),
-            "language": item.get("language")
-        })
-
-    if HAS_APIFY:
-        async with Actor:
-            await Actor.push_data(results)
-            print(f"Berhasil push {len(results)} data ke Apify Dataset!")
-    else:
-        os.makedirs("storage/datasets/default", exist_ok=True)
-        with open("storage/datasets/default/results.json", "w") as f:
-            json.dump(results, f, indent=2)
-        print(f"Berhasil! {len(results)} data tersimpan di storage/datasets/default/results.json")
-
-if __name__ == "__main__":
-    asyncio.run(main())
+        # 4. Push ke Dataset Apify
+        await Actor.push_data(insight_dataset)
+        Actor.log.info(f"✅ Berhasil menyusun {len(insight_dataset)} data intelijen!")
