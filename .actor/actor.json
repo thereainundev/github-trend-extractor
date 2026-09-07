@@ -3,9 +3,5 @@
   "name": "gittrend-scout-pro",
   "title": "GitTrend Scout Pro: Deep Repository Intelligence",
   "version": "0.0",
-  "meta": {
-    "templateId": "python-start"
-  },
-  "input": ".actor/input_schema.json",
   "output": "./output_schema.json"
 }
