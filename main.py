@@ -1,7 +1,30 @@
 import asyncio
 from apify import Actor
 import httpx
+import os
 from datetime import datetime, timezone
+
+async def send_telegram_alert(message):
+    bot_token = os.getenv("TELEGRAM_BOT_TOKEN")
+    chat_id = os.getenv("TELEGRAM_CHAT_ID")
+    
+    if not bot_token or not chat_id:
+        Actor.log.warning("⚠️ Telegram credentials not found in environment variables.")
+        return
+
+    url = f"https://api.telegram.org/bot{bot_token}/sendMessage"
+    payload = {
+        "chat_id": chat_id,
+        "text": message,
+        "parse_mode": "Markdown"
+    }
+    
+    async with httpx.AsyncClient() as client:
+        response = await client.post(url, json=payload)
+        if response.status_code == 200:
+            Actor.log.info("🔥 [ENTERNEURAL] Telegram alpha briefing dispatched successfully.")
+        else:
+            Actor.log.error(f"❌ Failed to send Telegram alert: {response.text}")
 
 async def main():
     async with Actor:
@@ -71,6 +94,18 @@ async def main():
 
         await Actor.push_data(master_intelligence_stream)
         Actor.log.info(f"⚡ [ENTERNEURAL] Synchronization complete. Deployed {len(master_intelligence_stream)} alpha vectors into dataset matrix.")
+
+        if master_intelligence_stream:
+            sorted_alpha = sorted(master_intelligence_stream, key=lambda x: x["Growth Velocity (Stars/Day)"], reverse=True)[:3]
+            msg = "🔥 *[ENTERNEURAL] Sovereign Alpha Briefing*\n\n"
+            for i, repo in enumerate(sorted_alpha, 1):
+                msg += f"*{i}. {repo['Repository Identifier']}*\n"
+                msg += f"• Vector: `{repo['Entity Vector']}`\n"
+                msg += f"• Velocity: `{repo['Growth Velocity (Stars/Day)']}` stars/day\n"
+                msg += f"• Status: {repo['Vector Status']}\n"
+                msg += f"• [View Repository]({repo['Repository URL']})\n\n"
+            msg += "⚡ *System autonomous execution complete.*"
+            await send_telegram_alert(msg)
 
 if __name__ == '__main__':
     asyncio.run(main())
