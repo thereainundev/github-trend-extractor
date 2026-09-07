@@ -5,75 +5,72 @@ from datetime import datetime, timezone
 
 async def main():
     async with Actor:
-        # 1. Autonomous Context Ingestion (Dynamic Market Targeting)
         actor_input = await Actor.get_input() or {}
-        topic = actor_input.get('topic', 'artificial-intelligence')
-        max_items = actor_input.get('maxItems', 20)
+        topics = actor_input.get('topics', ['artificial-intelligence', 'agentic-workflows', 'distributed-systems'])
+        max_items_per_topic = actor_input.get('maxItemsPerTopic', 10)
 
-        Actor.log.info(f"⚡ [NEXUS-CORE] Initializing sovereign scan for sector: '{topic}' (Depth: {max_items})")
+        Actor.log.info(f"🧠 [ENTERNEURAL] Activating multi-vector sovereign matrix across topics: {topics}")
 
-        url = f"https://api.github.com/search/repositories?q=topic:{topic}&sort=stars&order=desc&per_page={max_items}"
-        headers = {"Accept": "application/vnd.github.v3+json"}
-        
         async with httpx.AsyncClient() as client:
-            response = await client.get(url, headers=headers)
-            data = response.json()
+            master_intelligence_stream = []
 
-        if "items" not in data:
-            Actor.log.error(f"❌ [NEXUS-CORE] Telemetry failure: {data}")
-            return
+            for topic in topics:
+                url = f"https://api.github.com/search/repositories?q=topic:{topic}&sort=stars&order=desc&per_page={max_items_per_topic}"
+                headers = {"Accept": "application/vnd.github.v3+json"}
+                
+                response = await client.get(url, headers=headers)
+                data = response.json()
 
-        now = datetime.now(timezone.utc)
-        intelligence_stream = []
+                if "items" not in data:
+                    Actor.log.warning(f"⚠️ [ENTERNEURAL] Telemetry disruption on vector '{topic}': {data.get('message', 'Unknown error')}")
+                    continue
 
-        # 2. Autonomous Heuristic Analysis & Scoring Engine
-        for repo in data["items"]:
-            created_at_str = repo.get("created_at")
-            pushed_at_str = repo.get("pushed_at")
-            
-            # Calculate repository age in days
-            age_days = 1
-            if created_at_str:
-                created_at = datetime.fromisoformat(created_at_str.replace("Z", "+00:00"))
-                age_days = max(1, (now - created_at).days)
+                now = datetime.now(timezone.utc)
 
-            stars = repo.get("stargazers_count", 0)
-            forks = repo.get("forks_count", 0)
-            open_issues = repo.get("open_issues_count", 0)
+                for repo in data["items"]:
+                    created_at_str = repo.get("created_at")
+                    pushed_at_str = repo.get("pushed_at")
+                    
+                    age_days = 1
+                    if created_at_str:
+                        created_at = datetime.fromisoformat(created_at_str.replace("Z", "+00:00"))
+                        age_days = max(1, (now - created_at).days)
 
-            # Heuristic Alpha Calculations
-            velocity_score = round(stars / age_days, 2) # Stars gained per day
-            adoption_ratio = round((forks / max(1, stars)) * 100, 2) # Fork-to-Star percentage
-            
-            # Autonomous Health & Market Valuation Logic
-            if open_issues > 50 and velocity_score > 5:
-                project_status = "🔥 Viral & High-Demand"
-                commercial_alpha = "Tier-1 (Venture Fundable / High Utility)"
-            elif velocity_score > 2:
-                project_status = "🚀 Momentum Accelerating"
-                commercial_alpha = "Tier-2 (Strong Community Growth)"
-            else:
-                project_status = "⚖️ Stable / Mature"
-                commercial_alpha = "Tier-3 (Established Infrastructure)"
+                    stars = repo.get("stargazers_count", 0)
+                    forks = repo.get("forks_count", 0)
+                    open_issues = repo.get("open_issues_count", 0)
 
-            intelligence_stream.append({
-                "Repository Identifier": repo.get("full_name"),
-                "Primary Stack": repo.get("language", "Multi-Language / Config"),
-                "Total Stars": stars,
-                "Growth Velocity (Stars/Day)": velocity_score,
-                "Adoption Ratio (%)": adoption_ratio,
-                "Open Issues (Community Load)": open_issues,
-                "Core Project Status": project_status,
-                "Commercial Alpha Rating": commercial_alpha,
-                "Key Topics": ", ".join(repo.get("topics", [])[:6]),
-                "Last Active Timestamp": pushed_at_str,
-                "Repository Direct URL": repo.get("html_url"),
-                "Executive Summary": repo.get("description") or "No executive summary provided by maintainers."
-            })
+                    velocity_score = round(stars / age_days, 2)
+                    adoption_ratio = round((forks / max(1, stars)) * 100, 2)
+                    
+                    if open_issues > 40 and velocity_score > 4:
+                        vector_status = "🔥 Hyper-Growth Vector"
+                        commercial_alpha = "Tier-1 (Venture Institutional Grade)"
+                    elif velocity_score > 1.5:
+                        vector_status = "🚀 Momentum Accelerating"
+                        commercial_alpha = "Tier-2 (Strong Developer Adoption)"
+                    else:
+                        vector_status = "⚖️ Stable Infrastructure"
+                        commercial_alpha = "Tier-3 (Core Utility)"
 
-        # 3. Secure Autonomous Delivery to Dataset Matrix
-        await Actor.push_data(intelligence_stream)
-        Actor.log.info(f"✅ [NEXUS-CORE] Successfully synthesized and deployed {len(intelligence_stream)} high-alpha intelligence vectors.")
+                    master_intelligence_stream.append({
+                        "Entity Vector": topic,
+                        "Repository Identifier": repo.get("full_name"),
+                        "Primary Stack": repo.get("language", "Config/Multi"),
+                        "Total Stars": stars,
+                        "Growth Velocity (Stars/Day)": velocity_score,
+                        "Adoption Ratio (%)": adoption_ratio,
+                        "Open Issues Load": open_issues,
+                        "Vector Status": vector_status,
+                        "Commercial Alpha Rating": commercial_alpha,
+                        "Key Technical Tags": ", ".join(repo.get("topics", [])[:5]),
+                        "Last Active Timestamp": pushed_at_str,
+                        "Repository URL": repo.get("html_url"),
+                        "Executive Summary": repo.get("description") or "No description provided."
+                    })
+
+        await Actor.push_data(master_intelligence_stream)
+        Actor.log.info(f"⚡ [ENTERNEURAL] Synchronization complete. Deployed {len(master_intelligence_stream)} alpha vectors into dataset matrix.")
 
 if __name__ == '__main__':
     asyncio.run(main())
