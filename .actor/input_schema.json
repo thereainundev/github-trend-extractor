@@ -1,0 +1,23 @@
+{
+    "title": "GitTrend Scout Pro",
+    "type": "object",
+    "schemaVersion": 1,
+    "properties": {
+        "topic": {
+            "title": "Tech Niche / Keyword",
+            "type": "string",
+            "description": "Contoh: artificial-intelligence, rust, web3, react",
+            "editor": "textfield",
+            "default": "artificial-intelligence"
+        },
+        "maxItems": {
+            "title": "Jumlah Maksimal Data",
+            "type": "integer",
+            "description": "Berapa banyak top repo yang ingin dianalisis?",
+            "default": 15,
+            "minimum": 5,
+            "maximum": 100
+        }
+    },
+    "required": ["topic"]
+}
