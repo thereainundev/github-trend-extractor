@@ -1,7 +1,12 @@
 {
-	"actorSpecification": 1,
-	"name": "my-first-actor",
-	"version": "0.0",
-	"buildTag": "latest",
-	"environmentVariables": {}
+  "actorSpecification": 1,
+  "name": "gittrend-scout-pro",
+  "title": "GitTrend Scout Pro: Deep Repository Intelligence",
+  "description": "Enterprise-grade data intelligence engine for fast-growing GitHub repos.",
+  "version": "0.0",
+  "meta": {
+    "templateId": "python-start"
+  },
+  "input": ".actor/input_schema.json",
+  "datasetSchema": ".actor/dataset_schema.json"
 }
