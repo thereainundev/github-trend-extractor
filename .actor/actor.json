@@ -2,5 +2,7 @@
   "actorSpecification": 1,
   "name": "my-first-actor",
   "title": "GitTrend Scout Pro: Deep Repository Intelligence",
-  "version": "0.0"
+  "version": "0.0",
+  "input": "./input_schema.json",
+  "output": "./output_schema.json"
 }
